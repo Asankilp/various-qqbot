@@ -32,9 +32,9 @@ def get_app_info(appids):
     resp = json.loads(urllib.request.urlopen(url=add).read().decode('utf-8'))
     return resp
 def get_user_info(steamid):
-    headers = {'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6'}
-    add = urllib.request.Request(f"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={apikey}&steamids={steamid}",headers=headers)
-    resp = json.loads(urllib.request.urlopen(url=add).read().decode('utf-8'))
+    #headers = {'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6'}
+    #add = urllib.request.Request(f"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={apikey}&steamids={steamid}",headers=headers)
+    resp = json.loads(urllib.request.urlopen(f"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={apikey}&steamids={steamid}").read().decode('utf-8'))
     return resp
 def get_owned_games(steamid):
     headers = {'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6'}
@@ -109,7 +109,10 @@ async def _(session: CommandSession):
     #         games.append(f"{resp['name']}({i})")
     #     except:
     #         pass
-    username = get_user_info(arg)["response"]["players"][0]["personaname"]
+    try:
+        username = get_user_info(arg)["response"]["players"][0]["personaname"]
+    except:
+        username = "未知"
     await session.send(f"用户{username}({arg})拥有的应用及游戏：{lts(games)}")
 @on_command('wishlist', only_to_me=False)
 async def _(session: CommandSession):
@@ -128,5 +131,8 @@ async def _(session: CommandSession):
         string += f"{resp[i]['name']}({i})"
         games.append(string)
         #wishgames.append(resp[str(i)]["name"])
-    username = get_user_info(arg)["response"]["players"][0]["personaname"]
+    try:
+        username = get_user_info(arg)["response"]["players"][0]["personaname"]
+    except:
+        username = "未知"
     await session.send(f"用户{username}({arg})的愿望单：{lts(games)}")
