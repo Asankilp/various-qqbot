@@ -46,6 +46,11 @@ def get_dymanic_info(steamid):
     add = urllib.request.Request(f"https://store.steampowered.com/dynamicstore/userdata/?id={steamid}&cc=CN",headers=headers)
     resp = json.loads(urllib.request.urlopen(url=add).read().decode('utf-8'))
     return resp
+def get_wishlist(steamid):
+    headers = {'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6'}
+    add = urllib.request.Request(f"https://store.steampowered.com/wishlist/profiles/{steamid}/wishlistdata/?p=0&v=1",headers=headers)
+    resp = json.loads(urllib.request.urlopen(url=add).read().decode('utf-8'))
+    return resp
 def lts(list):
     string = ""
     count = 1
@@ -113,20 +118,15 @@ async def _(session: CommandSession):
         await session.send('请输入steamid')
         return
     try:
-        resp = get_dymanic_info(arg)
+        resp = get_wishlist(arg)
     except:
         await session.send('发生错误')
         return
-    #await session.send(str(resp))
-    wishappid = resp["rgWishlist"]
-    #await session.send(wishappid)
     games = []
-    for i in wishappid:
-        resp = get_app_info(i)
-        try:
-            resp = resp[str(i)]['data']
-            games.append(f"{resp['name']}({i})")
-        except:
-            pass
+    for i in resp.keys():
+        string = ""
+        string += f"{resp[i]['name']}({i})"
+        games.append(string)
+        #wishgames.append(resp[str(i)]["name"])
     username = get_user_info(arg)["response"]["players"][0]["personaname"]
-    await session.send(f"用户{username}的愿望单：{lts(games)}")
+    await session.send(f"用户{username}({arg})的愿望单：{lts(games)}")
