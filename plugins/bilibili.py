@@ -46,6 +46,19 @@ async def _(session: CommandSession):
     rating = resp["media"]["rating"]["score"]
     await session.send(f"标题：{title}\n地区：{locale}\n封面URL：{cover}\n播放URL：{url}\n评分：{rating}")
     await session.send(f"[CQ:image,file={cover}]")
+@on_command('lcomment', only_to_me=False)
+async def _(session: CommandSession):
+    arg = session.current_arg_text.strip()
+    if not arg:
+        await session.send('请输入mdid')
+        return
+    resp = await bangumi.get_long_comment_list(arg)
+    for cmt in resp["list"]:
+        content = cmt["content"]
+        time = cmt["ctime"]
+        name = cmt["author"]["uname"]
+        mid = cmt["mid"]
+        await session.send(f"{name}({mid})：{content}\n时间：{time}")  
 @on_command('overview', only_to_me=False)
 async def _(session: CommandSession):
     arg = session.current_arg_text.strip()
